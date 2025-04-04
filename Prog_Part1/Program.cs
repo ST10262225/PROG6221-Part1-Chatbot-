@@ -36,17 +36,17 @@ namespace Prog_Part1
             string absolutePath = Path.GetFullPath(relativePath); // Convert it to an absolute path
             Console.ForegroundColor = ConsoleColor.Yellow;
 
+            // Checks if the audio file is present before trying to play it
             if (!File.Exists(absolutePath))
             {
                 // Display warning if the audio file is missing
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("⚠ Warning: Audio file not found. Skipping greeting...");
+                Console.WriteLine("Warning: Audio file not found. Skipping greeting...");
                 Console.ResetColor();
                 return;
             }
 
-            try
-            {
+            
                 // Try loading and playing the sound
                 using (SoundPlayer player = new SoundPlayer(absolutePath))
                 {
@@ -54,14 +54,8 @@ namespace Prog_Part1
                     player.PlaySync();  // Play the audio file synchronously
                 }
             }
-            catch (Exception ex)
-            {
-                // Handle errors if audio fails to play
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error playing greeting: " + ex.Message);
-                Console.ResetColor();
-            }
-        }
+           
+        
 
         // Method for displaying the ASCII art logo
         static void DisplayAsciiArt()
@@ -80,11 +74,12 @@ namespace Prog_Part1
             string Name = Console.ReadLine()?.Trim();
 
             // Ensure the user enters a valid name
-            while (string.IsNullOrEmpty(Name))
+            while (string.IsNullOrEmpty(Name) || Name.Length < 3 || !Name.All(char.IsLetter))
+              
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Chatbot: ");
-                DisplayTypingEffect("Name cannot be empty. Please enter your name: ");
+                DisplayTypingEffect("Name must contain only letters and cannot be empty. Please enter your name: ");
                 Console.ResetColor();
                 Name = Console.ReadLine()?.Trim();
             }
@@ -109,12 +104,20 @@ namespace Prog_Part1
                 Console.ResetColor();
                 string userInput = Console.ReadLine()?.Trim().ToLower();
 
+                // Checks if the use input is not grater than 500
+                if (userInput.Length > 500)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Chatbot: Please enter a more concise question.");
+                    Console.ResetColor();
+                    continue;
+                }
                 // Ensure the user enters a valid question
-                if (string.IsNullOrEmpty(userInput))
+                if (string.IsNullOrEmpty(userInput) || userInput.Length < 3)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write("Chatbot: ");
-                    DisplayTypingEffect("Please enter a valid question.");
+                    DisplayTypingEffect("Please enter a valid question with at least 3.");
                     Console.ResetColor();
                     continue;
                 }

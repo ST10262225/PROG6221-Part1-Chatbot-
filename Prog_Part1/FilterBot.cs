@@ -35,14 +35,6 @@ namespace Prog_Part1
                 "Avoid using the same password for multiple accounts."
             };
 
-            // Adding responses related to 'security' keyword.
-            responses["security"] = new List<string>
-            {
-                "Security is essential to protect your data from cyber threats.",
-                "Use two-factor authentication whenever possible.",
-                "Keep your software and systems updated to stay secure."
-            };
-
             // Adding responses related to 'phishing' keyword.
             responses["phishing"] = new List<string>
             {
@@ -124,7 +116,7 @@ namespace Prog_Part1
             };
 
             // Adding responses related to 'safe browsing' keyword.
-            responses["safe browsing"] = new List<string>
+            responses["browsing"] = new List<string>
             {
                 "Always check the URL before entering personal information—phishing sites often look identical to real ones.",
                 "Look for 'HTTPS' in the website address—it means your connection is secure.",
@@ -135,48 +127,55 @@ namespace Prog_Part1
         // Method to get a response based on the user's input.
         public string GetResponse(string input)
         {
-            // Convert input to lowercase and split it into words.
-            string lowerInput = input.ToLower();
+            // Convert input to lowercase and split into words.
+            string[] inputWords = input.ToLower().Split(' ');
 
-            // First, check if any multi-word phrases match.
-            List<string> responsesToReturn = new List<string>();
+            List<string> topicResponses = new List<string>();
 
-            foreach (var phrase in responses.Keys)
+            // Define colors for the first and second keyword responses.
+            ConsoleColor[] responseColors = { ConsoleColor.Blue, ConsoleColor.Magenta };
+            int colorIndex = 0;
+
+            bool handledPasswordResponse = false;
+            // Loop through the user input and check for keyword matches.
+            foreach (var keyword in responses.Keys)
             {
-                if (lowerInput.Contains(phrase))
+                if (inputWords.Contains(keyword) || inputWords.Any(word => word.StartsWith(keyword)))
                 {
-                    responsesToReturn.Add(responses[phrase][random.Next(responses[phrase].Count)]);
+                    // Change text color: First keyword response is Blue, the second is Pink (Magenta)
+                    Console.ForegroundColor = responseColors[Math.Min(colorIndex, 1)];
+
+                    // Store the responses
+                    if (topicResponses.Count > 0)
+                    {
+                        topicResponses.Add(""); // Adds space between different keyword responses
+                    }
+
+                    topicResponses.AddRange(responses[keyword]);
+
+                    // Increment color index
+                    colorIndex++;
                 }
             }
 
-            // If we have any responses from the multi-word phrases check, return them.
-            if (responsesToReturn.Count > 0)
+            // Reset color after displaying responses
+            Console.ResetColor();
+
+            // If responses were found, join and return them as a string.
+            if (topicResponses.Count > 0)
             {
-                return string.Join("\n", responsesToReturn);
+                return string.Join("\n", topicResponses);
             }
 
-            // If no multi-word phrases matched, proceed with checking individual words.
-            List<string> words = lowerInput
-                                  .Split(new char[] { ' ', ',', '.', '?' }, StringSplitOptions.RemoveEmptyEntries)
-                                  .Where(word => !ignoreWords.Contains(word)) // Ignore common words
-                                  .ToList();
-
-            // Find keywords that match the stored responses.
-            List<string> matchedKeywords = words.Where(word => responses.ContainsKey(word)).ToList();
-
-            // If there are matched keywords, return random responses for each matched keyword.
-            if (matchedKeywords.Count > 0)
-            {
-                List<string> selectedResponses = matchedKeywords
-                    .Select(keyword => responses[keyword][random.Next(responses[keyword].Count)])
-                    .ToList();
-
-                return string.Join("\n", selectedResponses); // Join selected responses with a newline
-            }
-
-            // If no matched keywords or phrases, return a default message.
+            // If no responses were found, return a default message.
             return "I'm sorry, I don't have an answer for that yet. Try asking something else about cybersecurity!";
         }
+
+
+
+
+
+
 
     }
 }
